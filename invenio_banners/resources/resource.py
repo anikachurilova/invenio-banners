@@ -18,6 +18,8 @@ from invenio_records_resources.resources.records.resource import (
 
 from .errors import ErrorHandlersMixin
 
+from .errors import ErrorHandlersMixin
+
 
 #
 # Resource
@@ -37,8 +39,8 @@ class BannerResource(ErrorHandlersMixin, Resource):
             route("POST", routes["create"], self.create),
             route("GET", routes["item"], self.read),
             route("GET", routes["list"], self.search),
-            route("DELETE", routes["item"], self.delete),
-            route("PUT", routes["item"], self.update),
+            route("DELETE", routes["banner"], self.delete),
+            route("PUT", routes["banner"], self.update),
         ]
 
     @request_view_args
@@ -70,13 +72,27 @@ class BannerResource(ErrorHandlersMixin, Resource):
         return banner.to_dict(), 200
 
     @request_search_args
+    @request_view_args
+    @request_extra_args
     @response_handler(many=True)
     def search(self):
         """Perform a search over the banners."""
-        banners = self.service.search(
-            identity=g.identity,
-            params=resource_requestctx.args,
-        )
+        active_arg = resource_requestctx.args.get("active")
+
+        if active_arg is None:
+            # Search for all the records:
+            # GET /api/banners
+            banners = self.service.search(
+                identity=g.identity,
+            )
+        else:
+            # Search for records filtered by 'active' and 'url_path' fields:
+            # GET /api/banners?active=true&url_path=url_path
+            banners = self.service.read_active(
+                identity=g.identity,
+                active=active_arg,
+                url_path=resource_requestctx.args.get("url_path", None),
+            )
 
         return banners.to_dict(), 200
 
