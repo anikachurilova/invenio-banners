@@ -10,6 +10,9 @@
 from invenio_records_resources.services import RecordService
 from invenio_records_resources.services.base import LinksTemplate
 
+from ..records.models import BannerModel
+from ..services.errors import BannerNotExistsError
+
 
 class BannerService(RecordService):
     """Banner Service."""
@@ -19,6 +22,10 @@ class BannerService(RecordService):
         self.require_permission(identity, "read")
 
         banner = self.record_cls.get(id)
+
+        # check if banner exists
+        if banner is None:
+            raise BannerNotExistsError(id)
 
         return self.result_item(
             self,
@@ -77,6 +84,8 @@ class BannerService(RecordService):
         self.require_permission(identity, "delete")
 
         banner = self.record_cls.get(id)
+        if banner is None:
+            raise BannerNotExistsError(id)
 
         self.record_cls.delete(banner)
 
@@ -87,6 +96,8 @@ class BannerService(RecordService):
         self.require_permission(identity, "update")
 
         banner = self.record_cls.get(id)
+        if banner is None:
+            raise BannerNotExistsError(id)
 
         # validate data
         valid_data, errors = self.schema.load(
