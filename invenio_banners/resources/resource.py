@@ -18,8 +18,6 @@ from invenio_records_resources.resources.records.resource import (
 
 from .errors import ErrorHandlersMixin
 
-from .errors import ErrorHandlersMixin
-
 
 #
 # Resource
