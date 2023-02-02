@@ -7,6 +7,8 @@
 
 """Invenio extension app."""
 
+from flask import Blueprint
+
 from . import config
 from .resources import BannerResource, BannerResourceConfig
 from .services import BannerService, BannerServiceConfig
